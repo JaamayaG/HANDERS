@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Generador WhatsApp | Paquetes Turísticos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__content">
+        <p class="hero__eyebrow">WhatsApp Ready</p>
+        <h1>Generador rápido de paquetes turísticos</h1>
+        <p class="hero__lead">Pega, limpia y copia el mensaje sin escribir manualmente.</p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <h2>Datos del paquete</h2>
+        <form id="packageForm" autocomplete="off">
+          <div class="field">
+            <label for="origin">Origen</label>
+            <input
+              id="origin"
+              name="origin"
+              type="text"
+              list="originList"
+              placeholder="SELECCIONA O ESCRIBE"
+            />
+            <datalist id="originList">
+              <option value="BOGOTÁ"></option>
+              <option value="CALI"></option>
+              <option value="PEREIRA"></option>
+              <option value="MEDELLÍN"></option>
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="destination">Destino</label>
+            <input
+              id="destination"
+              name="destination"
+              type="text"
+              list="destinationList"
+              placeholder="SELECCIONA O ESCRIBE"
+            />
+            <datalist id="destinationList">
+              <option value="SAN ANDRÉS"></option>
+              <option value="LA GUAJIRA"></option>
+              <option value="EL AMAZONAS"></option>
+              <option value="SANTA MARTA"></option>
+              <option value="COVEÑAS"></option>
+              <option value="MEDELLÍN"></option>
+              <option value="PANAMÁ"></option>
+              <option value="CANCÚN"></option>
+              <option value="PUNTA CANA"></option>
+              <option value="SANTO DOMINGO"></option>
+            </datalist>
+          </div>
+
+          <div class="grid-3">
+            <div class="field">
+              <label for="adults">Adultos</label>
+              <input id="adults" name="adults" type="number" min="0" value="2" />
+            </div>
+            <div class="field">
+              <label for="children">Niños</label>
+              <input id="children" name="children" type="number" min="0" value="0" />
+            </div>
+            <div class="field">
+              <label for="infants">Infantes</label>
+              <input id="infants" name="infants" type="number" min="0" value="0" />
+            </div>
+          </div>
+
+          <p id="passengerTotal" class="hint">👥 Precio para 0 pasajeros</p>
+
+          <div class="grid-5">
+            <div class="field">
+              <label for="fromDay">Desde</label>
+              <input id="fromDay" name="fromDay" type="number" min="1" max="31" value="1" />
+            </div>
+            <div class="field">
+              <label for="toDay">Hasta</label>
+              <input id="toDay" name="toDay" type="number" min="1" max="31" value="7" />
+            </div>
+            <div class="field">
+              <label for="fromMonth">Mes desde</label>
+              <select id="fromMonth" name="fromMonth">
+                <option>ENERO</option>
+                <option>FEBRERO</option>
+                <option>MARZO</option>
+                <option>ABRIL</option>
+                <option>MAYO</option>
+                <option>JUNIO</option>
+                <option>JULIO</option>
+                <option>AGOSTO</option>
+                <option>SEPTIEMBRE</option>
+                <option>OCTUBRE</option>
+                <option>NOVIEMBRE</option>
+                <option>DICIEMBRE</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="toMonth">Mes hasta</label>
+              <select id="toMonth" name="toMonth">
+                <option>ENERO</option>
+                <option>FEBRERO</option>
+                <option>MARZO</option>
+                <option>ABRIL</option>
+                <option>MAYO</option>
+                <option>JUNIO</option>
+                <option>JULIO</option>
+                <option>AGOSTO</option>
+                <option>SEPTIEMBRE</option>
+                <option>OCTUBRE</option>
+                <option>NOVIEMBRE</option>
+                <option>DICIEMBRE</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="year">Año</label>
+              <input id="year" name="year" type="number" min="2024" value="2026" />
+            </div>
+          </div>
+
+          <div id="dateError" class="error" role="alert" aria-live="polite"></div>
+
+          <div class="field">
+            <label for="hotelsInput">Bloque de hoteles</label>
+            <textarea
+              id="hotelsInput"
+              name="hotelsInput"
+              rows="10"
+              placeholder="Hotel Cove On Vacation - Aerolinea: JETSMART - Precio: $ 5.397.000
+ver detalle.
+Hotel Blue Reef On Vacation - Aerolinea: JETSMART - Precio: $5.397.000"
+            ></textarea>
+          </div>
+
+          <div class="grid-3">
+            <div class="field">
+              <label for="meals">Comidas</label>
+              <select id="meals" name="meals">
+                <option>Desayuno</option>
+                <option>Desayuno y cena</option>
+                <option>Desayuno, almuerzo y cena</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="drinks">Bebidas ilimitadas</label>
+              <select id="drinks" name="drinks">
+                <option>Si</option>
+                <option>No</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="transfers">Traslados</label>
+              <select id="transfers" name="transfers">
+                <option>Sin traslados</option>
+                <option>Aeropuerto ✈️ Hotel ✈️ Aeropuerto</option>
+                <option>Aeropuerto ✈️ Hotel</option>
+                <option>Hotel ✈️ Aeropuerto</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" id="copyButton" class="primary">📋 COPIAR MENSAJE</button>
+            <button type="button" id="clearButton" class="ghost">🧹 LIMPIAR TODO</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel preview">
+        <div class="preview__header">
+          <h2>Vista previa</h2>
+          <span id="hotelCount" class="badge">Hoteles detectados: 0</span>
+        </div>
+        <div id="hotelWarning" class="warning" role="status"></div>
+        <pre id="messageOutput" class="message"></pre>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
