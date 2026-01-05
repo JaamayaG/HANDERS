@@ -15,61 +15,87 @@
       </div>
     </header>
 
-    <main class="layout">
+    <section class="mode-bar">
+      <div class="mode-card">
+        <div>
+          <p class="mode-label">Tipo de paquete</p>
+          <p class="mode-title">Vuelos y alojamiento / Alojamiento</p>
+        </div>
+        <div class="mode-switch" role="group" aria-label="Tipo de paquete">
+          <span class="mode-option">VUELOS Y ALOJAMIENTO</span>
+          <label class="switch">
+            <input id="packageMode" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+          <span class="mode-option">ALOJAMIENTO</span>
+        </div>
+      </div>
+    </section>
+
+    <main class="layout" id="packageLayout">
       <section class="panel">
         <h2>Datos del paquete</h2>
         <form id="packageForm" autocomplete="off">
           <div class="field">
             <label for="origin">Origen</label>
-            <input
-              id="origin"
-              name="origin"
-              type="text"
-              list="originList"
-              placeholder="SELECCIONA O ESCRIBE"
-            />
-            <datalist id="originList">
-              <option value="BOGOTÁ"></option>
-              <option value="CALI"></option>
-              <option value="PEREIRA"></option>
-              <option value="MEDELLÍN"></option>
-            </datalist>
+            <div class="combo">
+              <input
+                id="origin"
+                name="origin"
+                type="text"
+                autocomplete="off"
+                placeholder="SELECCIONA O ESCRIBE"
+              />
+              <div id="originOptions" class="combo-list" role="listbox"></div>
+            </div>
           </div>
           <div class="field">
             <label for="destination">Destino</label>
-            <input
-              id="destination"
-              name="destination"
-              type="text"
-              list="destinationList"
-              placeholder="SELECCIONA O ESCRIBE"
-            />
-            <datalist id="destinationList">
-              <option value="SAN ANDRÉS"></option>
-              <option value="LA GUAJIRA"></option>
-              <option value="EL AMAZONAS"></option>
-              <option value="SANTA MARTA"></option>
-              <option value="COVEÑAS"></option>
-              <option value="MEDELLÍN"></option>
-              <option value="PANAMÁ"></option>
-              <option value="CANCÚN"></option>
-              <option value="PUNTA CANA"></option>
-              <option value="SANTO DOMINGO"></option>
-            </datalist>
+            <div class="combo">
+              <input
+                id="destination"
+                name="destination"
+                type="text"
+                autocomplete="off"
+                placeholder="SELECCIONA O ESCRIBE"
+              />
+              <div id="destinationOptions" class="combo-list" role="listbox"></div>
+            </div>
           </div>
 
           <div class="grid-3">
             <div class="field">
               <label for="adults">Adultos</label>
-              <input id="adults" name="adults" type="number" min="0" value="2" />
+              <input
+                id="adults"
+                name="adults"
+                type="number"
+                min="0"
+                value="2"
+                class="input-compact"
+              />
             </div>
             <div class="field">
               <label for="children">Niños</label>
-              <input id="children" name="children" type="number" min="0" value="0" />
+              <input
+                id="children"
+                name="children"
+                type="number"
+                min="0"
+                value="0"
+                class="input-compact"
+              />
             </div>
             <div class="field">
               <label for="infants">Infantes</label>
-              <input id="infants" name="infants" type="number" min="0" value="0" />
+              <input
+                id="infants"
+                name="infants"
+                type="number"
+                min="0"
+                value="0"
+                class="input-compact"
+              />
             </div>
           </div>
 
@@ -141,6 +167,120 @@ Hotel Blue Reef On Vacation - Aerolinea: JETSMART - Precio: $5.397.000"
         </div>
         <div id="hotelWarning" class="warning" role="status"></div>
         <pre id="messageOutput" class="message"></pre>
+      </section>
+    </main>
+
+    <main class="layout" id="lodgingLayout" aria-hidden="true">
+      <section class="panel">
+        <h2>Datos del alojamiento</h2>
+        <form id="lodgingForm" autocomplete="off">
+          <div class="field">
+            <label for="lodgingDestination">Destino</label>
+            <div class="combo">
+              <input
+                id="lodgingDestination"
+                name="lodgingDestination"
+                type="text"
+                autocomplete="off"
+                placeholder="SELECCIONA O ESCRIBE"
+              />
+              <div
+                id="lodgingDestinationOptions"
+                class="combo-list"
+                role="listbox"
+              ></div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="lodgingAdults">Adultos</label>
+              <input
+                id="lodgingAdults"
+                name="lodgingAdults"
+                type="number"
+                min="0"
+                value="2"
+                class="input-compact"
+              />
+            </div>
+            <div class="field">
+              <label for="lodgingChildren">Niños</label>
+              <input
+                id="lodgingChildren"
+                name="lodgingChildren"
+                type="number"
+                min="0"
+                value="0"
+                class="input-compact"
+              />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="lodgingFromDate">Desde</label>
+              <input id="lodgingFromDate" name="lodgingFromDate" type="date" />
+            </div>
+            <div class="field">
+              <label for="lodgingToDate">Hasta</label>
+              <input id="lodgingToDate" name="lodgingToDate" type="date" />
+            </div>
+          </div>
+
+          <div id="lodgingDateError" class="error" role="alert" aria-live="polite"></div>
+
+          <div class="field">
+            <label for="lodgingHotelsInput">Bloque de hoteles</label>
+            <textarea
+              id="lodgingHotelsInput"
+              name="lodgingHotelsInput"
+              rows="8"
+              placeholder="Hotel Girardot Resort On Vacation - Precio: $ 676.008"
+            ></textarea>
+          </div>
+
+          <div class="grid-3">
+            <div class="field">
+              <label for="lodgingMeals">Alimentación</label>
+              <select id="lodgingMeals" name="lodgingMeals">
+                <option>Desayuno</option>
+                <option>Desayuno y cena</option>
+                <option>Desayuno, almuerzo y cena</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="lodgingDrinks">Bebidas ilimitadas</label>
+              <select id="lodgingDrinks" name="lodgingDrinks">
+                <option>Si</option>
+                <option>No</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="lodgingTransfers">Traslados</label>
+              <select id="lodgingTransfers" name="lodgingTransfers">
+                <option>Sin traslados</option>
+                <option>Aeropuerto hotel aeropuerto</option>
+                <option>Aeropuerto hotel</option>
+                <option>Hotel aeropuerto</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" id="lodgingCopyButton" class="primary">📋 COPIAR MENSAJE</button>
+            <button type="button" id="lodgingClearButton" class="ghost">🧹 LIMPIAR TODO</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel preview">
+        <div class="preview__header">
+          <h2>Vista previa</h2>
+          <span id="lodgingHotelCount" class="badge">Hoteles detectados: 0</span>
+        </div>
+        <div id="lodgingHotelWarning" class="warning" role="status"></div>
+        <pre id="lodgingMessageOutput" class="message"></pre>
       </section>
     </main>
 

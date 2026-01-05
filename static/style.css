@@ -53,6 +53,96 @@ body {
   opacity: 0.9;
 }
 
+.mode-bar {
+  padding: 24px 8vw 0;
+}
+
+.mode-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.mode-label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);
+}
+
+.mode-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.mode-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mode-option {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 62px;
+  height: 32px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e2e8f0;
+  transition: 0.2s;
+  border-radius: 999px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.2s;
+  border-radius: 50%;
+  box-shadow: 0 6px 12px rgba(15, 23, 42, 0.25);
+}
+
+.switch input:checked + .slider {
+  background-color: var(--accent);
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(30px);
+}
+
 .layout {
   display: grid;
   grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
@@ -91,6 +181,46 @@ body {
   margin-bottom: 16px;
 }
 
+.combo {
+  position: relative;
+}
+
+.combo-list {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #d4d4d8;
+  border-radius: 12px;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12);
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 6px;
+  display: none;
+}
+
+.combo-list.show {
+  display: block;
+}
+
+.combo-option {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.combo-option:hover,
+.combo-option:focus {
+  background: #e0f2fe;
+}
+
 label {
   font-size: 13px;
   letter-spacing: 0.5px;
@@ -107,6 +237,11 @@ textarea {
   border: 1px solid #d4d4d8;
   font-size: 15px;
   background: #fff;
+}
+
+.input-compact {
+  max-width: 120px;
+  text-align: center;
 }
 
 textarea {
