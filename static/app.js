@@ -4,11 +4,8 @@ const destinationInput = document.getElementById("destination");
 const adultsInput = document.getElementById("adults");
 const childrenInput = document.getElementById("children");
 const infantsInput = document.getElementById("infants");
-const fromDayInput = document.getElementById("fromDay");
-const toDayInput = document.getElementById("toDay");
-const fromMonthInput = document.getElementById("fromMonth");
-const toMonthInput = document.getElementById("toMonth");
-const yearInput = document.getElementById("year");
+const fromDateInput = document.getElementById("fromDate");
+const toDateInput = document.getElementById("toDate");
 const hotelsInput = document.getElementById("hotelsInput");
 const mealsInput = document.getElementById("meals");
 const drinksInput = document.getElementById("drinks");
@@ -110,11 +107,8 @@ const buildMessage = () => {
   const passengerLine = `👥 ${passengerParts.join(" | ") || "Adultos: 0"}`;
   passengerTotal.textContent = passengerLine;
 
-  const fromDay = toInt(fromDayInput.value);
-  const toDay = toInt(toDayInput.value);
-  const fromMonth = fromMonthInput.value.trim();
-  const toMonth = toMonthInput.value.trim();
-  const year = yearInput.value.trim();
+  const fromDateValue = fromDateInput.value;
+  const toDateValue = toDateInput.value;
 
   const hotels = parseHotels(hotelsInput.value);
   hotelCount.textContent = `Hoteles detectados: ${hotels.length}`;
@@ -128,18 +122,13 @@ const buildMessage = () => {
     hotelWarning.style.display = "none";
   }
 
-  const fromMonthIndex = fromMonthInput.selectedIndex;
-  const toMonthIndex = toMonthInput.selectedIndex;
-  const yearNumber = toInt(yearInput.value);
-
   if (
-    fromDay <= 0 ||
-    toDay <= 0 ||
-    fromMonthIndex > toMonthIndex ||
-    (fromMonthIndex === toMonthIndex && toDay < fromDay)
+    !fromDateValue ||
+    !toDateValue ||
+    new Date(fromDateValue) > new Date(toDateValue)
   ) {
     dateError.textContent =
-      "La fecha es inválida. El día final debe ser mayor o igual al inicial.";
+      "La fecha es inválida. La fecha final debe ser mayor o igual a la inicial.";
     dateError.style.display = "block";
     messageOutput.textContent = "";
     copyButton.disabled = true;
@@ -149,8 +138,8 @@ const buildMessage = () => {
   dateError.textContent = "";
   dateError.style.display = "none";
 
-  const fromDate = new Date(Date.UTC(yearNumber, fromMonthIndex, fromDay));
-  const toDate = new Date(Date.UTC(yearNumber, toMonthIndex, toDay));
+  const fromDate = new Date(fromDateValue + "T00:00:00");
+  const toDate = new Date(toDateValue + "T00:00:00");
   const diffMs = toDate.getTime() - fromDate.getTime();
   const nights = Math.max(Math.round(diffMs / 86400000), 0);
   const days = nights + 1;
@@ -160,10 +149,15 @@ const buildMessage = () => {
   const drinks = drinksInput.value.trim();
   const transfers = transfersInput.value.trim();
 
-  const cycleText =
-    fromMonthIndex === toMonthIndex
-      ? `📆 Ciclo: DEL ${fromDay} AL ${toDay} DE ${fromMonth} DEL ${year}`
-      : `📆 Ciclo: DEL ${fromDay} DE ${fromMonth} AL ${toDay} DE ${toMonth} DEL ${year}`;
+  const formatDate = (date) =>
+    date.toLocaleDateString("es-CO", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }).toUpperCase();
+  const cycleText = `📆 Ciclo: DEL ${formatDate(fromDate)} AL ${formatDate(
+    toDate
+  )}`;
 
   const origin = originInput.value.trim().toUpperCase();
   const destination = destinationInput.value.trim().toUpperCase();
@@ -214,12 +208,6 @@ const clearAll = () => {
   copyButton.disabled = true;
   buildMessage();
 };
-
-if (!yearInput.value) {
-  const currentYear = new Date().getFullYear();
-  yearInput.value = currentYear;
-  yearInput.defaultValue = currentYear;
-}
 
 form.addEventListener("input", buildMessage);
 copyButton.addEventListener("click", copyMessage);
