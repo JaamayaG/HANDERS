@@ -33,8 +33,28 @@
     </section>
 
     <main class="layout" id="packageLayout">
-      <section class="panel">
-        <h2>Datos del paquete</h2>
+      <section class="panel panel--paste">
+        <div class="panel-header">
+          <div class="panel-heading">
+            <h2>Datos del paquete</h2>
+            <div class="actions actions--top actions--left">
+              <button type="button" id="clearButton" class="ghost">LIMPIAR TODO</button>
+            </div></div>
+          <div class="paste-card">
+            <p class="paste-title">Imagen del destino</p>
+            <div
+              id="imagePaste"
+              class="paste-box"
+              contenteditable="true"
+              role="textbox"
+              aria-label="Pega una imagen desde el portapapeles"
+            >
+              Pega aqui una imagen
+            </div>
+            <p id="imageStatus" class="paste-status"></p>
+            <img id="imagePreview" class="paste-preview" alt="Vista previa" />
+          </div>
+        </div>
         <form id="packageForm" autocomplete="off">
           <div class="field">
             <label for="origin">Origen</label>
@@ -61,9 +81,7 @@
               />
               <div id="destinationOptions" class="combo-list" role="listbox"></div>
             </div>
-          </div>
-
-          <div class="grid-3">
+          </div><div class="grid-3">
             <div class="field">
               <label for="adults">Adultos</label>
               <input
@@ -71,8 +89,9 @@
                 name="adults"
                 type="number"
                 min="0"
-                value="2"
+                value=""
                 class="input-compact"
+                placeholder="-"
               />
             </div>
             <div class="field">
@@ -82,8 +101,9 @@
                 name="children"
                 type="number"
                 min="0"
-                value="0"
+                value=""
                 class="input-compact"
+                placeholder="-"
               />
             </div>
             <div class="field">
@@ -93,23 +113,28 @@
                 name="infants"
                 type="number"
                 min="0"
-                value="0"
+                value=""
                 class="input-compact"
+                placeholder="-"
               />
             </div>
           </div>
 
           <p id="passengerTotal" class="hint">👥 Precio para 0 pasajeros</p>
 
-          <div class="grid-2">
-            <div class="field">
-              <label for="fromDate">Desde</label>
-              <input id="fromDate" name="fromDate" type="date" />
-            </div>
-            <div class="field">
-              <label for="toDate">Hasta</label>
-              <input id="toDate" name="toDate" type="date" />
-            </div>
+          <div class="field date-range">
+            <label for="dateRange">Fechas (desde / hasta)</label>
+            <input
+              id="dateRange"
+              name="dateRange"
+              type="text"
+              autocomplete="off"
+              placeholder="Selecciona un rango"
+              readonly
+            />
+            <div id="dateRangePicker" class="date-range-picker" aria-hidden="true"></div>
+            <input id="fromDate" name="fromDate" type="date" hidden />
+            <input id="toDate" name="toDate" type="date" hidden />
           </div>
 
           <div id="dateError" class="error" role="alert" aria-live="polite"></div>
@@ -126,7 +151,7 @@ Hotel Blue Reef On Vacation - Aerolinea: JETSMART - Precio: $5.397.000"
             ></textarea>
           </div>
 
-          <div class="grid-3">
+          <div class="grid-3 grid-3-wide">
             <div class="field">
               <label for="meals">Comidas</label>
               <select id="meals" name="meals">
@@ -155,7 +180,6 @@ Hotel Blue Reef On Vacation - Aerolinea: JETSMART - Precio: $5.397.000"
 
           <div class="actions">
             <button type="button" id="copyButton" class="primary">📋 COPIAR MENSAJE</button>
-            <button type="button" id="clearButton" class="ghost">🧹 LIMPIAR TODO</button>
           </div>
         </form>
       </section>
@@ -200,8 +224,9 @@ Hotel Blue Reef On Vacation - Aerolinea: JETSMART - Precio: $5.397.000"
                 name="lodgingAdults"
                 type="number"
                 min="0"
-                value="2"
+                value=""
                 class="input-compact"
+                placeholder="-"
               />
             </div>
             <div class="field">
@@ -211,21 +236,30 @@ Hotel Blue Reef On Vacation - Aerolinea: JETSMART - Precio: $5.397.000"
                 name="lodgingChildren"
                 type="number"
                 min="0"
-                value="0"
+                value=""
                 class="input-compact"
+                placeholder="-"
               />
             </div>
           </div>
 
-          <div class="grid-2">
-            <div class="field">
-              <label for="lodgingFromDate">Desde</label>
-              <input id="lodgingFromDate" name="lodgingFromDate" type="date" />
-            </div>
-            <div class="field">
-              <label for="lodgingToDate">Hasta</label>
-              <input id="lodgingToDate" name="lodgingToDate" type="date" />
-            </div>
+          <div class="field date-range">
+            <label for="lodgingDateRange">Fechas (desde / hasta)</label>
+            <input
+              id="lodgingDateRange"
+              name="lodgingDateRange"
+              type="text"
+              autocomplete="off"
+              placeholder="Selecciona un rango"
+              readonly
+            />
+            <div
+              id="lodgingDateRangePicker"
+              class="date-range-picker"
+              aria-hidden="true"
+            ></div>
+            <input id="lodgingFromDate" name="lodgingFromDate" type="date" hidden />
+            <input id="lodgingToDate" name="lodgingToDate" type="date" hidden />
           </div>
 
           <div id="lodgingDateError" class="error" role="alert" aria-live="polite"></div>
@@ -240,7 +274,7 @@ Hotel Blue Reef On Vacation - Aerolinea: JETSMART - Precio: $5.397.000"
             ></textarea>
           </div>
 
-          <div class="grid-3">
+          <div class="grid-3 grid-3-wide">
             <div class="field">
               <label for="lodgingMeals">Alimentación</label>
               <select id="lodgingMeals" name="lodgingMeals">
@@ -284,6 +318,7 @@ Hotel Blue Reef On Vacation - Aerolinea: JETSMART - Precio: $5.397.000"
       </section>
     </main>
 
+    <script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
     <script src="{{ url_for('static', filename='app.js') }}"></script>
   </body>
 </html>

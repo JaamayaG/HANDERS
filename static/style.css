@@ -159,6 +159,10 @@ body {
   overflow: hidden;
 }
 
+.panel--paste {
+  padding-right: 340px;
+}
+
 .panel::after {
   content: "";
   position: absolute;
@@ -172,6 +176,83 @@ body {
 .panel h2 {
   margin-top: 0;
   font-size: 22px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.panel--paste .panel-header {
+  margin-bottom: 12px;
+}
+
+.panel-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.paste-card {
+  min-width: 220px;
+  max-width: 280px;
+  flex: 1;
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 12px;
+  border: 1px dashed #cbd5f5;
+}
+
+.panel--paste .paste-card {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 280px;
+}
+
+.paste-title {
+  margin: 0 0 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.paste-box {
+  min-height: 90px;
+  border-radius: 12px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  font-size: 13px;
+  color: var(--muted);
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.paste-status {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.paste-preview {
+  display: none;
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 12px;
+  object-fit: cover;
+  max-height: 180px;
+}
+
+.paste-preview.show {
+  display: block;
 }
 
 .field {
@@ -239,9 +320,96 @@ textarea {
   background: #fff;
 }
 
+select {
+  min-height: 48px;
+}
+
 .input-compact {
   max-width: 120px;
   text-align: center;
+}
+
+.date-range {
+  position: relative;
+}
+
+.date-range input[readonly] {
+  cursor: pointer;
+  background-color: #fff;
+}
+
+.date-range-picker {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  min-width: 280px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.12);
+  display: none;
+}
+
+.date-range-picker.show {
+  display: block;
+}
+
+.date-range-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.date-range-nav {
+  border: none;
+  background: rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.date-range-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.date-range-weekday {
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+.date-range-day {
+  border-radius: 8px;
+  padding: 6px 0;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.date-range-day:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.date-range-day.is-muted {
+  color: rgba(15, 23, 42, 0.35);
+  cursor: default;
+}
+
+.date-range-day.is-selected {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.date-range-day.is-start,
+.date-range-day.is-end {
+  background: #2563eb;
+  color: #fff;
 }
 
 textarea {
@@ -262,6 +430,14 @@ textarea {
 
 .grid-3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid-3-wide {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-3-wide .field:last-child {
+  grid-column: 1 / -1;
 }
 
 .grid-4 {
@@ -374,6 +550,16 @@ button:active {
 @media (max-width: 980px) {
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  .panel--paste {
+    padding-right: 24px;
+  }
+
+  .panel--paste .paste-card {
+    position: static;
+    width: auto;
+    max-width: none;
   }
 
   .grid-2,

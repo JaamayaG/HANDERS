@@ -6,6 +6,8 @@ const childrenInput = document.getElementById("children");
 const infantsInput = document.getElementById("infants");
 const fromDateInput = document.getElementById("fromDate");
 const toDateInput = document.getElementById("toDate");
+const dateRangeInput = document.getElementById("dateRange");
+const dateRangePicker = document.getElementById("dateRangePicker");
 const hotelsInput = document.getElementById("hotelsInput");
 const mealsInput = document.getElementById("meals");
 const drinksInput = document.getElementById("drinks");
@@ -21,6 +23,9 @@ const originOptions = document.getElementById("originOptions");
 const destinationOptions = document.getElementById("destinationOptions");
 const packageMode = document.getElementById("packageMode");
 const packageLayout = document.getElementById("packageLayout");
+const imagePaste = document.getElementById("imagePaste");
+const imagePreview = document.getElementById("imagePreview");
+const imageStatus = document.getElementById("imageStatus");
 
 const lodgingLayout = document.getElementById("lodgingLayout");
 const lodgingForm = document.getElementById("lodgingForm");
@@ -32,6 +37,10 @@ const lodgingAdultsInput = document.getElementById("lodgingAdults");
 const lodgingChildrenInput = document.getElementById("lodgingChildren");
 const lodgingFromDateInput = document.getElementById("lodgingFromDate");
 const lodgingToDateInput = document.getElementById("lodgingToDate");
+const lodgingDateRangeInput = document.getElementById("lodgingDateRange");
+const lodgingDateRangePicker = document.getElementById(
+  "lodgingDateRangePicker"
+);
 const lodgingHotelsInput = document.getElementById("lodgingHotelsInput");
 const lodgingMealsInput = document.getElementById("lodgingMeals");
 const lodgingDrinksInput = document.getElementById("lodgingDrinks");
@@ -48,6 +57,7 @@ const hotelPattern =
 const lodgingHotelPattern = /^\s*(.+?)\s*-\s*Precio\s*:?\s*(.+?)\s*$/i;
 const originChoices = ["BOGOTÁ", "CALI", "PEREIRA", "MEDELLÍN"];
 const destinationChoices = [
+  "GIRARDOT",
   "SAN ANDRÉS",
   "LA GUAJIRA",
   "EL AMAZONAS",
@@ -60,6 +70,7 @@ const destinationChoices = [
   "SANTO DOMINGO",
 ];
 const lodgingDestinationChoices = [
+  "GIRARDOT",
   "SAN ANDRÉS",
   "LA GUAJIRA",
   "EL AMAZONAS",
@@ -68,8 +79,77 @@ const lodgingDestinationChoices = [
   "MEDELLÍN",
 ];
 
+const forceUppercase = (input) => {
+  if (!input) {
+    return;
+  }
+  input.value = input.value.toUpperCase();
+};
+
 const stripDiacritics = (text) =>
   text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+const resetImagePaste = () => {
+  if (!imagePaste || !imagePreview) {
+    return;
+  }
+  imagePreview.src = "";
+  imagePreview.classList.remove("show");
+  imagePaste.textContent = "Pega aqui una imagen";
+  if (imageStatus) {
+    imageStatus.textContent = "";
+  }
+};
+
+const formatRangeDisplay = (fromValue, toValue) => {
+  if (!fromValue || !toValue) {
+    return "";
+  }
+  return `${fromValue} al ${toValue}`;
+};
+
+const setRangeInputs = (fromInput, toInput, rangeInput, fromValue, toValue) => {
+  if (fromInput) {
+    fromInput.value = fromValue || "";
+  }
+  if (toInput) {
+    toInput.value = toValue || "";
+  }
+  if (rangeInput) {
+    rangeInput.value = formatRangeDisplay(fromValue, toValue);
+  }
+};
+
+const applyBackendOcrData = (data) => {
+  if (!data || data.error) {
+    return;
+  }
+  if (data.origin) {
+    originInput.value = data.origin.toUpperCase();
+  }
+  if (data.destination) {
+    destinationInput.value = data.destination.toUpperCase();
+  }
+  if (data.totals) {
+    adultsInput.value = data.totals.adults ?? 0;
+    childrenInput.value = data.totals.children ?? 0;
+    infantsInput.value = data.totals.infants ?? 0;
+  }
+  if (data.departure_date) {
+    fromDateInput.value = data.departure_date;
+  }
+  if (data.return_date) {
+    toDateInput.value = data.return_date;
+  }
+  setRangeInputs(
+    fromDateInput,
+    toDateInput,
+    dateRangeInput,
+    fromDateInput.value,
+    toDateInput.value
+  );
+  buildMessage();
+};
 
 const toInt = (value) => {
   const parsed = parseInt(value, 10);
@@ -326,16 +406,30 @@ const buildLodgingMessage = () => {
   const transfersKey = transfers.toLowerCase();
 
   const perPersonExtra = (() => {
-    if (destination !== "LA GUAJIRA" || transfersKey === "sin traslados") {
+    if (transfersKey === "sin traslados") {
       return 0;
     }
 
-    if (transfersKey === "aeropuerto hotel aeropuerto") {
-      return 60000;
+    if (destination === "LA GUAJIRA") {
+      if (transfersKey === "aeropuerto hotel aeropuerto") {
+        return 60000;
+      }
+      if (transfersKey === "hotel aeropuerto") {
+        return 45000;
+      }
+      return 0;
     }
-    if (transfersKey === "hotel aeropuerto") {
-      return 45000;
+
+    if (destination === "EL AMAZONAS") {
+      if (transfersKey === "aeropuerto hotel aeropuerto") {
+        return 90000;
+      }
+      if (transfersKey === "hotel aeropuerto") {
+        return 60000;
+      }
+      return 0;
     }
+
     return 0;
   })();
 
@@ -405,6 +499,8 @@ const clearAll = () => {
   form.reset();
   originInput.value = "";
   destinationInput.value = "";
+  setRangeInputs(fromDateInput, toDateInput, dateRangeInput, "", "");
+  resetImagePaste();
   messageOutput.textContent = "";
   hotelWarning.textContent = "";
   hotelWarning.style.display = "none";
@@ -416,6 +512,13 @@ const clearAll = () => {
 
 const clearLodging = () => {
   lodgingForm.reset();
+  setRangeInputs(
+    lodgingFromDateInput,
+    lodgingToDateInput,
+    lodgingDateRangeInput,
+    "",
+    ""
+  );
   lodgingMessageOutput.textContent = "";
   lodgingHotelWarning.textContent = "";
   lodgingHotelWarning.style.display = "none";
@@ -470,6 +573,179 @@ const setupCombo = (input, listEl, options) => {
   });
 };
 
+const setupDateRangePicker = ({
+  input,
+  picker,
+  fromInput,
+  toInput,
+  onChange,
+}) => {
+  if (!input || !picker || !fromInput || !toInput) {
+    return;
+  }
+
+  let currentMonth = new Date();
+  currentMonth.setDate(1);
+  let rangeStart = null;
+  let rangeEnd = null;
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const isSameDay = (a, b) =>
+    a &&
+    b &&
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+
+  const render = () => {
+    picker.innerHTML = "";
+    const header = document.createElement("div");
+    header.className = "date-range-header";
+
+    const prevBtn = document.createElement("button");
+    prevBtn.type = "button";
+    prevBtn.className = "date-range-nav";
+    prevBtn.textContent = "<";
+    prevBtn.addEventListener("click", () => {
+      currentMonth.setMonth(currentMonth.getMonth() - 1);
+      render();
+    });
+
+    const nextBtn = document.createElement("button");
+    nextBtn.type = "button";
+    nextBtn.className = "date-range-nav";
+    nextBtn.textContent = ">";
+    nextBtn.addEventListener("click", () => {
+      currentMonth.setMonth(currentMonth.getMonth() + 1);
+      render();
+    });
+
+    const title = document.createElement("div");
+    title.textContent = currentMonth.toLocaleDateString("es-CO", {
+      month: "long",
+      year: "numeric",
+    });
+
+    header.appendChild(prevBtn);
+    header.appendChild(title);
+    header.appendChild(nextBtn);
+    picker.appendChild(header);
+
+    const grid = document.createElement("div");
+    grid.className = "date-range-grid";
+
+    ["L", "M", "M", "J", "V", "S", "D"].forEach((day) => {
+      const el = document.createElement("div");
+      el.className = "date-range-weekday";
+      el.textContent = day;
+      grid.appendChild(el);
+    });
+
+    const firstDayIndex = (currentMonth.getDay() + 6) % 7;
+    const daysInMonth = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + 1,
+      0
+    ).getDate();
+
+    for (let i = 0; i < firstDayIndex; i += 1) {
+      const blank = document.createElement("div");
+      blank.className = "date-range-day is-muted";
+      blank.textContent = "";
+      grid.appendChild(blank);
+    }
+
+    for (let day = 1; day <= daysInMonth; day += 1) {
+      const date = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth(),
+        day
+      );
+      const cell = document.createElement("button");
+      cell.type = "button";
+      cell.className = "date-range-day";
+      cell.textContent = String(day);
+
+      const inRange =
+        rangeStart &&
+        rangeEnd &&
+        date >= rangeStart &&
+        date <= rangeEnd;
+      if (inRange) {
+        cell.classList.add("is-selected");
+      }
+      if (isSameDay(date, rangeStart)) {
+        cell.classList.add("is-start");
+      }
+      if (isSameDay(date, rangeEnd)) {
+        cell.classList.add("is-end");
+      }
+
+      cell.addEventListener("click", () => {
+        if (!rangeStart || (rangeStart && rangeEnd)) {
+          rangeStart = date;
+          rangeEnd = null;
+          render();
+          return;
+        }
+
+        if (date < rangeStart) {
+          rangeEnd = rangeStart;
+          rangeStart = date;
+        } else {
+          rangeEnd = date;
+        }
+
+        const fromValue = formatDate(rangeStart);
+        const toValue = formatDate(rangeEnd);
+        setRangeInputs(fromInput, toInput, input, fromValue, toValue);
+        picker.classList.remove("show");
+        picker.setAttribute("aria-hidden", "true");
+        if (typeof onChange === "function") {
+          onChange();
+        }
+        render();
+      });
+
+      grid.appendChild(cell);
+    }
+
+    picker.appendChild(grid);
+  };
+
+  const openPicker = () => {
+    rangeStart = null;
+    rangeEnd = null;
+    setRangeInputs(fromInput, toInput, input, "", "");
+    picker.classList.add("show");
+    picker.setAttribute("aria-hidden", "false");
+    render();
+  };
+
+  input.addEventListener("click", (event) => {
+    event.stopPropagation();
+    openPicker();
+  });
+
+  picker.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (event.target === input || picker.contains(event.target)) {
+      return;
+    }
+    picker.classList.remove("show");
+    picker.setAttribute("aria-hidden", "true");
+  });
+};
+
 const toggleMode = () => {
   const lodgingOnly = packageMode.checked;
   if (lodgingOnly) {
@@ -484,29 +760,11 @@ const toggleMode = () => {
 };
 
 form.addEventListener("input", buildMessage);
-fromDateInput.addEventListener("change", () => {
-  if (!fromDateInput.value) {
-    return;
-  }
-
-  if (!toDateInput.value) {
-    toDateInput.value = fromDateInput.value;
-  }
-});
 copyButton.addEventListener("click", copyMessage);
 clearButton.addEventListener("click", clearAll);
 
 if (lodgingForm) {
   lodgingForm.addEventListener("input", buildLodgingMessage);
-  lodgingFromDateInput.addEventListener("change", () => {
-    if (!lodgingFromDateInput.value) {
-      return;
-    }
-
-    if (!lodgingToDateInput.value) {
-      lodgingToDateInput.value = lodgingFromDateInput.value;
-    }
-  });
   lodgingCopyButton.addEventListener("click", async () => {
     const text = lodgingMessageOutput.textContent.trim();
     await copyText(lodgingCopyButton, text);
@@ -526,4 +784,98 @@ setupCombo(
   lodgingDestinationChoices
 );
 
+setupDateRangePicker({
+  input: dateRangeInput,
+  picker: dateRangePicker,
+  fromInput: fromDateInput,
+  toInput: toDateInput,
+  onChange: buildMessage,
+});
+
+setupDateRangePicker({
+  input: lodgingDateRangeInput,
+  picker: lodgingDateRangePicker,
+  fromInput: lodgingFromDateInput,
+  toInput: lodgingToDateInput,
+  onChange: buildLodgingMessage,
+});
+
 buildMessage();
+
+if (imagePaste && imagePreview) {
+  imagePaste.addEventListener("paste", (event) => {
+    const items = event.clipboardData?.items || [];
+    const imageItem = Array.from(items).find((item) =>
+      item.type.startsWith("image/")
+    );
+    if (!imageItem) {
+      return;
+    }
+    event.preventDefault();
+    const file = imageItem.getAsFile();
+    if (!file) {
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      imagePreview.src = reader.result;
+      imagePreview.classList.add("show");
+      imagePaste.textContent = "Imagen pegada";
+      if (imageStatus) {
+        imageStatus.textContent = "Procesando imagen...";
+      }
+      if (!window.Tesseract) {
+        if (imageStatus) {
+          imageStatus.textContent = "OCR no disponible.";
+        }
+        return;
+      }
+      window.Tesseract.recognize(imagePreview, "spa", {
+        logger: () => {},
+      })
+        .then((result) => {
+          const rawText = result.data.text || "";
+          return fetch("/parse_ocr", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ raw_text: rawText }),
+          })
+            .then((response) =>
+              response
+                .json()
+                .then((data) => ({ ok: response.ok, data }))
+            )
+            .then(({ ok, data }) => {
+              if (ok) {
+                applyBackendOcrData(data);
+                if (imageStatus) {
+                  imageStatus.textContent = "Datos cargados desde OCR.";
+                }
+              } else if (imageStatus) {
+                imageStatus.textContent = "OCR no disponible en servidor.";
+              }
+            });
+        })
+        .catch(() => {
+          if (imageStatus) {
+            imageStatus.textContent = "No se pudo leer la imagen.";
+          }
+        });
+    };
+    reader.readAsDataURL(file);
+  });
+
+  imagePaste.addEventListener("click", () => {
+    if (imagePreview.classList.contains("show")) {
+      resetImagePaste();
+    }
+  });
+}
+
+originInput.addEventListener("input", () => forceUppercase(originInput));
+destinationInput.addEventListener("input", () => forceUppercase(destinationInput));
+if (lodgingDestinationInput) {
+  lodgingDestinationInput.addEventListener("input", () =>
+    forceUppercase(lodgingDestinationInput)
+  );
+}
