@@ -204,7 +204,54 @@ const parseHotels = (input) => {
   return hotels;
 };
 
+const normalizeFlightText = (text) =>
+  stripDiacritics(text).toLowerCase().replace(/[.]/g, "").replace(/\s+/g, " ");
+
+const parseFlightTableDetails = (input) => {
+  const cleaned = cleanLines(input);
+  if (cleaned.length === 0) {
+    return null;
+  }
+
+  const normalizedAll = cleaned.map(normalizeFlightText).join(" ");
+  const hasTableMarkers =
+    normalizedAll.includes("datos del vuelo") ||
+    normalizedAll.includes("fecha y hora de salida") ||
+    normalizedAll.includes("conexion ida") ||
+    normalizedAll.includes("conexion regreso");
+  if (!hasTableMarkers) {
+    return null;
+  }
+
+  const times = [];
+  cleaned.forEach((line) => {
+    const matches = line.match(/\b\d{1,2}:\d{2}(?::\d{2})?\b/g);
+    if (matches) {
+      times.push(...matches);
+    }
+  });
+
+  if (times.length < 4) {
+    return null;
+  }
+
+  const [outboundDeparture, outboundConnection, inboundDeparture, inboundConnection] =
+    times;
+  return {
+    type: "table",
+    outboundDeparture,
+    outboundConnection,
+    inboundDeparture,
+    inboundConnection,
+  };
+};
+
 const parseFlightDetails = (input) => {
+  const tableDetails = parseFlightTableDetails(input);
+  if (tableDetails) {
+    return tableDetails;
+  }
+
   const cleaned = cleanLines(input);
   let outbound = "";
   let inbound = "";
@@ -212,9 +259,7 @@ const parseFlightDetails = (input) => {
 
   for (let i = 0; i < cleaned.length; i += 1) {
     const line = cleaned[i];
-    const normalized = stripDiacritics(line)
-      .toLowerCase()
-      .replace(/\s+/g, " ");
+    const normalized = normalizeFlightText(line);
 
     if (normalized.startsWith("ida")) {
       outbound = cleaned[i + 1]?.trim() || outbound;
@@ -232,10 +277,18 @@ const parseFlightDetails = (input) => {
     }
   }
 
-  return { outbound, inbound, flightId };
+  if (!outbound && !inbound && !flightId) {
+    return null;
+  }
+
+  return { type: "simple", outbound, inbound, flightId };
 };
 
 const buildFlightText = (details) => {
+  if (!details) {
+    return "IDA Y REGRESO";
+  }
+
   const formatTime = (value) => {
     if (!value) {
       return "POR DEFINIR";
@@ -251,6 +304,14 @@ const buildFlightText = (details) => {
     const period = hours24 >= 12 ? "PM" : "AM";
     return `${String(hours12).padStart(2, "0")}:${minutes}:${seconds} ${period}`;
   };
+
+  if (details.type === "table") {
+    const outboundDeparture = formatTime(details.outboundDeparture);
+    const outboundConnection = formatTime(details.outboundConnection);
+    const inboundDeparture = formatTime(details.inboundDeparture);
+    const inboundConnection = formatTime(details.inboundConnection);
+    return `SALIDA VUELO IDA: ${outboundDeparture}\nESCALA IDA: ${outboundConnection}\n\nVUELO REGRESO: ${inboundDeparture}\nESCALA REGRESO: ${inboundConnection}`;
+  }
 
   const outbound = formatTime(details.outbound);
   const inbound = formatTime(details.inbound);
