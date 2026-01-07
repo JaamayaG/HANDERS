@@ -8,6 +8,7 @@ const fromDateInput = document.getElementById("fromDate");
 const toDateInput = document.getElementById("toDate");
 const dateRangeInput = document.getElementById("dateRange");
 const dateRangePicker = document.getElementById("dateRangePicker");
+const flightsInput = document.getElementById("flightsInput");
 const hotelsInput = document.getElementById("hotelsInput");
 const mealsInput = document.getElementById("meals");
 const drinksInput = document.getElementById("drinks");
@@ -203,6 +204,60 @@ const parseHotels = (input) => {
   return hotels;
 };
 
+const parseFlightDetails = (input) => {
+  const cleaned = cleanLines(input);
+  let outbound = "";
+  let inbound = "";
+  let flightId = "";
+
+  for (let i = 0; i < cleaned.length; i += 1) {
+    const line = cleaned[i];
+    const normalized = stripDiacritics(line)
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+
+    if (normalized.startsWith("ida")) {
+      outbound = cleaned[i + 1]?.trim() || outbound;
+      continue;
+    }
+
+    if (normalized.startsWith("regreso")) {
+      inbound = cleaned[i + 1]?.trim() || inbound;
+      continue;
+    }
+
+    const idMatch = line.match(/id\s*vuelo\s*:?\s*(.+)$/i);
+    if (idMatch) {
+      flightId = idMatch[1].trim();
+    }
+  }
+
+  return { outbound, inbound, flightId };
+};
+
+const buildFlightText = (details) => {
+  const formatTime = (value) => {
+    if (!value) {
+      return "POR DEFINIR";
+    }
+    const match = value.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (!match) {
+      return value;
+    }
+    const hours24 = parseInt(match[1], 10);
+    const minutes = match[2];
+    const seconds = match[3] ?? "00";
+    const hours12 = ((hours24 + 11) % 12) + 1;
+    const period = hours24 >= 12 ? "PM" : "AM";
+    return `${String(hours12).padStart(2, "0")}:${minutes}:${seconds} ${period}`;
+  };
+
+  const outbound = formatTime(details.outbound);
+  const inbound = formatTime(details.inbound);
+  const flightId = details.flightId || "POR DEFINIR";
+  return `HORARIO IDA: ${outbound}\nHORARIO REGRESO: ${inbound}\nID VUELO: ${flightId}`;
+};
+
 const parseLodgingHotels = (input) => {
   const cleaned = cleanLines(input);
   const hotels = [];
@@ -234,7 +289,7 @@ const buildHotelsText = (hotels) => {
   return hotels
     .map(
       (hotel) =>
-        `**${hotel.name}**\n✈️ Aerolínea: ${hotel.airline}\n💰 **${hotel.price} COP**`
+        `**${hotel.name}**\n✈️ Aerolínea: ${hotel.airline}\n💰 TOTAL**${hotel.price} COP**`
     )
     .join("\n________________\n\n");
 };
@@ -325,6 +380,8 @@ const buildMessage = () => {
   const days = nights + 1;
 
   const hotelsText = buildHotelsText(hotels);
+  const flightDetails = parseFlightDetails(flightsInput?.value || "");
+  const flightsText = buildFlightText(flightDetails);
   const meals = mealsInput.value.trim();
   const drinks = drinksInput.value.trim();
   const transfers = transfersInput.value.trim();
@@ -356,7 +413,7 @@ const buildMessage = () => {
     ? `\n\n🚐 TRASLADOS INCLUIDOS\n${transfers}`
     : "";
 
-  const message = `🌴 PAQUETE DESDE ${origin} HACIA ${destination} 🌴\n\n${passengerLine}\n${cycleText}\n🏨💰\n\n🏨 Opciones de hotel disponibles:\n\n${hotelsText}\n\n✅ INCLUYE:\n\n✈️ Tiquetes aéreos\nIda y regreso\n\n🏨 Ciclo de ${nights} noches y ${days} días\n\n🍽️ Alimentación: ${meals}\n\n🛏️ PACK HABITACIÓN:\n• Toalla de baño\n• Aseo diario de la habitación\n• Aire acondicionado ❄️${drinksLine}${transfersBlock}`;
+  const message = `🌴 ORIGEN: ${origin}\n🌴 DESTINO: ${destination}\n\n${passengerLine}\n${cycleText}\n\n🏨💰\n\n🏨 Opciones de hotel disponibles:\n\n${hotelsText}\n\n✅ INCLUYE:\n\n✈️ Tiquetes aéreos\n${flightsText}\n\n🏨 Ciclo de ${nights} noches y ${days} días\n\n🍽️ Alimentación: ${meals}\n\n🛏️ PACK HABITACIÓN:\n• Toalla de baño\n• Aseo diario de la habitación\n• Aire acondicionado ❄️${drinksLine}${transfersBlock}`;
 
   messageOutput.textContent = message;
   copyButton.disabled = false;
